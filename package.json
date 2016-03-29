@@ -1,0 +1,19 @@
+{
+  "name": "redux-tutorial",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "enclave-serve": "enclave",
+    "enclave-build": "node node_modules/enclave/src/build.js",
+    "enclave-eject": "node node_modules/enclave/src/eject/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "enclave": "^0.9.3",
+    "redux": "^3.3.1"
+  }
+}
