@@ -47,8 +47,9 @@ const visibilityFilter = ( state = 'SHOW_ALL', action ) => {
 
 const todoApp = combineReducers({
   // Part of state: reducer that corresponds
-  todos: todos,
-  visibilityFilter: visibilityFilter
+  // If the two are the same, just write it out once
+  todos,
+  visibilityFilter
 })
 
 
