@@ -1,53 +1,59 @@
-import React from 'react';
-// import { render } from 'react-dom';
-const ReactDom = require('react-dom')
-import { createStore } from 'redux'
+import expect from 'expect'
+import deepFreeze from 'deep-freeze'
 
-// This is the reducer that manages the actions
-const counter = (state = 0, action) => {
-  switch (action.type) {
-    case 'INCREMENT':
-      return state + 1;
-
-    case 'DECREMENT':
-      return state -1;
-
-    default:
-      return state;
-  }
+const addCounter = (list) => {
+  return [...list, 0]
 }
 
-const store = createStore(counter)
+const testAddCounter = () => {
+  const listBefore = []
+  const listAfter = [0]
 
-const App = ({value, onIncrement, onDecrement}) => {
-    return (
-      <div style={{textAlign: 'center'}}>
-        <h1 style={{fontFamily: 'Open Sans', fontWeight: 300, color: '#333', fontSize: 64}}>
-          {value}
-        </h1>
-        <button onClick={onIncrement}>+</button>
-        <button onClick={onDecrement}>-</button>
-      </div>
-    );
-  }
+  deepFreeze(listBefore)
 
-const render = () => {
-  ReactDom.render(
-    <App
-    value={store.getState()}
-    onIncrement={() =>
-      store.dispatch({
-        type: 'INCREMENT'
-      })
-    }
-    onDecrement={() =>
-      store.dispatch({
-        type: 'DECREMENT'
-      })
-    }
-    />,
-   document.getElementById('app'));
+  expect(
+    addCounter(listBefore)
+  ).toEqual(listAfter)
 }
 
-store.subscribe(render)
-render();
+const removeItem = (list, index) => {
+  return [
+    ...list.slice(0, index),
+    ...list.slice(index + 1)
+  ]
+}
+
+const testRemoveItem = () => {
+  const listBefore = [0, 10, 20]
+  const listAfter = [0, 20]
+
+  deepFreeze(listBefore)
+
+  expect(
+    removeItem(listBefore, 1)
+  ).toEqual(listAfter)
+}
+
+const incrementItem = (list, index) => {
+  return [
+    ...list.slice(0, index),
+    list[index] + 1,
+    ...list.slice(index + 1)
+  ]
+}
+
+const testIncrementItem = () => {
+  const listBefore = [0, 10, 20]
+  const listAfter= [0, 11, 20]
+
+  deepFreeze(listBefore)
+
+  expect(
+    incrementItem(listBefore, 1)
+  ).toEqual(listAfter)
+}
+
+testAddCounter()
+testRemoveItem()
+testIncrementItem()
+console.log('it worked!');
