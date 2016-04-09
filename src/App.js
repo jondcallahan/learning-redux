@@ -1,32 +1,41 @@
 import expect from 'expect'
 import deepFreeze from 'deep-freeze'
 
-const toggleTodo = (todo) => {
-  return {
-    ...todo,
-    completed: !todo.completed
+const todos = (state = [], action) => {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return [
+        ...state,
+        {
+          id: action.id,
+          text: action.text,
+          completed: false
+        }
+      ]
   }
 }
 
-const testToggleTodo = () => {
-  const todoBefore = {
+const testAddTodo = () => {
+  const stateBefore = []
+  const action = {
+    type: 'ADD_TODO',
     id: 0,
     text: 'Learn Redux!',
-    completed: false,
   }
-
-  const todoAfter = {
+  const stateAfter = [{
     id: 0,
     text: 'Learn Redux!',
-    completed: true,
-  }
+    completed: false
+  }]
 
-  deepFreeze(todoBefore)
+  deepFreeze(stateBefore)
+  deepFreeze(action)
 
   expect(
-    toggleTodo(todoBefore)
-  ).toEqual(todoAfter)
+    todos(stateBefore, action)
+  ).toEqual(stateAfter)
+
 }
 
-testToggleTodo()
+testAddTodo()
 console.log('it worked!');
