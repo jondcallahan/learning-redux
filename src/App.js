@@ -1,4 +1,6 @@
-import { createStore } from 'redux'
+import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
+import { createStore, combineReducers } from 'redux'
 
 const todo = (state, action) => {
   switch (action.type) {
@@ -45,63 +47,52 @@ const visibilityFilter = ( state = 'SHOW_ALL', action ) => {
   }
 }
 
-const combineReducers = (reducers) => {
-  return (state = {}, action) => {
-    return Object.keys(reducers).reduce(
-      (nextState, key) => {
-        nextState[key] = reducers[key](
-          state[key],
-          action
-        )
-        return nextState
-      },
-      {}
-    )
-  }
-}
-
 const todoApp = combineReducers({
   todos,
   visibilityFilter
 })
-
-
 const store = createStore(todoApp)
 
-console.log('Initial State: ')
-console.log(store.getState());
-console.log('-------------');
-console.log('Dispatching ADD_TODO');
-store.dispatch({
-  type: 'ADD_TODO',
-  id: 0,
-  text: 'Learn Redux'
-})
-console.log('Current State: ')
-console.log(JSON.stringify(store.getState(), null, 2));
-console.log('-------------');
-console.log('Dispatching ADD_TODO');
-store.dispatch({
-  type: 'ADD_TODO',
-  id: 1,
-  text: 'Go Shopping'
-})
-console.log('Current State: ')
-console.log(JSON.stringify(store.getState(), null, 2));
-console.log('-------------');
-console.log('Dispatching TOGGLE_TODO');
-store.dispatch({
-  type: 'TOGGLE_TODO',
-  id: 0,
-})
-console.log('Current State: ')
-console.log(JSON.stringify(store.getState(), null, 2));
-console.log('-------------');
-console.log('Dispatching SET_VISIBILITY_FILTER');
-store.dispatch({
-  type: 'SET_VISIBILITY_FILTER',
-  filter: 'SHOW_COMPLETED',
-})
-console.log('Current State: ')
-console.log(JSON.stringify(store.getState(), null, 2));
-console.log('-------------');
+let NextTodoID = 0
+
+class TodoApp extends Component {
+  render() {
+    return(
+      <div>
+        <input type="text" ref={ node => {
+            this.input = node
+          }}/>
+        <button onClick={ () => {
+            store.dispatch({
+              type: 'ADD_TODO',
+              text: this.input.value,
+              id: NextTodoID++
+            })
+            this.input.value = ''
+          }}>
+          Add Todo
+        </button>
+        <ol>
+          {this.props.todos.map( (todo) => {
+            return(
+                <li key={todo.id}>{todo.text}</li>
+            )
+          })}
+        </ol>
+      </div>
+    )
+  }
+}
+
+const render = () => {
+  ReactDOM.render(
+    /* Since this is run after every update to the store,
+    the todos prop will always be up-to-date */
+    <TodoApp todos={store.getState().todos}/>,
+    document.getElementById('app')
+  )
+}
+
+// Any time the store is updated, the render function re-runs
+store.subscribe(render)
+render()
