@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, combineReducers } from 'redux'
 
@@ -53,10 +53,53 @@ const todoApp = combineReducers({
 })
 const store = createStore(todoApp)
 
+const GetVisibleTodos = (todos, filter) => {
+  switch (filter) {
+    case 'SHOW_ALL':
+      return todos
+    case 'SHOW_COMPLETED':
+      return todos.filter( t =>
+        t.completed
+      )
+    case 'SHOW_ACTIVE':
+      return todos.filter( t =>
+        !t.completed
+      )
+  }
+}
+
+const FilterLink = ({ filter, children, currentFilter }) => {
+  if (filter === currentFilter) {
+    return(
+      <span>{children}</span>
+    )
+  }
+  return (
+    <a href="#"
+        onClick={e => {
+          e.preventDefault()
+          store.dispatch({
+            type: 'SET_VISIBILITY_FILTER',
+            filter
+          })
+        }}
+      >
+      {children}
+    </a>
+  )
+}
+
+FilterLink.propTypes = {
+  filter: PropTypes.string.isRequired,
+  children: PropTypes.string.isRequired,
+}
+
 let NextTodoID = 0
 
 class TodoApp extends Component {
   render() {
+    const { props: { todos, visibilityFilter } } = this
+    const VisibleTodos = GetVisibleTodos(todos, visibilityFilter)
     return(
       <div>
         <input type="text" ref={ node => {
@@ -73,7 +116,7 @@ class TodoApp extends Component {
           Add Todo
         </button>
         <ol>
-          {this.props.todos.map( (todo) => {
+          {VisibleTodos.map( (todo) => {
             return(
                 <li
                   key={todo.id}
@@ -94,6 +137,21 @@ class TodoApp extends Component {
             )
           })}
         </ol>
+        <p>
+          Show:
+          {'  '}
+          <FilterLink filter="SHOW_ALL" currentFilter={visibilityFilter}>
+            All
+          </FilterLink>
+          {'  '}
+          <FilterLink filter="SHOW_ACTIVE" currentFilter={visibilityFilter}>
+            Active
+          </FilterLink>
+          {'  '}
+          <FilterLink filter="SHOW_COMPLETED" currentFilter={visibilityFilter}>
+            Completed
+          </FilterLink>
+        </p>
       </div>
     )
   }
@@ -103,7 +161,9 @@ const render = () => {
   ReactDOM.render(
     /* Since this is run after every update to the store,
     the todos prop will always be up-to-date */
-    <TodoApp todos={store.getState().todos}/>,
+    <TodoApp
+      {...store.getState()}
+      />,
     document.getElementById('app')
   )
 }
